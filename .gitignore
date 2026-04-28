@@ -1,0 +1,7 @@
+*.sql
+*.wpress
+*.tar.gz
+*.zip
+*.log
+ib_logfile*
+node_modules/

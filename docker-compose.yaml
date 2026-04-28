@@ -1,0 +1,71 @@
+version: "3"
+
+services:
+  castopod:
+    image: castopod/castopod:1.15.1 # Pinning to the latest stable as of Feb 2026
+    container_name: "castopod"
+    restart: unless-stopped
+    volumes:
+      - ./data/media:/app/public/media
+    environment:
+      # Database
+      MYSQL_DATABASE: castopod
+      MYSQL_USER: castopod
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      CP_DATABASE_HOSTNAME: mariadb
+      
+      # Application
+      CP_BASEURL: "https://barkbarkbark.dibberlab.me"
+      CP_ANALYTICS_SALT: ${CP_ANALYTICS_SALT}
+      
+      # Cache
+      CP_CACHE_HANDLER: redis
+      CP_REDIS_HOST: redis
+      CP_REDIS_PASSWORD: ${REDIS_PASSWORD}
+      
+      # Reverse Proxy Setup
+      CP_DISABLE_HTTPS: 1 # Essential because Nginx/Cloudflare handles SSL
+    ports:
+      - "1119:8080" # Maps to the app's internal port
+    networks:
+      - castopod-app
+      - castopod-db
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  mariadb:
+    image: mariadb:11.4 # Latest long-term support
+    container_name: "castopod-mariadb"
+    restart: unless-stopped
+    networks:
+      - castopod-db
+    volumes:
+      - ./data/db:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: castopod
+      MYSQL_USER: castopod
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  redis:
+    image: redis:7-alpine
+    container_name: "castopod-redis"
+    restart: unless-stopped
+    command: --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - ./data/cache:/data
+    networks:
+      - castopod-app
+
+networks:
+  castopod-app:
+  castopod-db:
+    internal: true
