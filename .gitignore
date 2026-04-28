@@ -5,3 +5,5 @@
 *.log
 ib_logfile*
 node_modules/
+data/db/aria_log_control
+data/db/aria_log.00000001
