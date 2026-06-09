@@ -9,19 +9,21 @@ interface Props {
   isOwner: boolean
 }
 
-export default function ChannelBlockGrid({ connections: initial, channelId, isOwner }: Props) {
-  const [connections, setConnections] = useState(initial)
+export default function ChannelBlockGrid({ connections, channelId, isOwner }: Props) {
+  const [removedIds, setRemovedIds] = useState<Set<string>>(new Set())
 
-  async function removeBlock(connectionBlockId: string) {
-    const res = await fetch(`/api/channels/${channelId}/blocks/${connectionBlockId}`, {
+  const visible = connections.filter((c) => !removedIds.has(c.block.id))
+
+  async function removeBlock(blockId: string) {
+    const res = await fetch(`/api/channels/${channelId}/blocks/${blockId}`, {
       method: 'DELETE',
     })
     if (res.ok) {
-      setConnections((prev) => prev.filter((c) => c.block.id !== connectionBlockId))
+      setRemovedIds((prev) => new Set(Array.from(prev).concat(blockId)))
     }
   }
 
-  if (connections.length === 0) {
+  if (visible.length === 0) {
     return (
       <div className="border border-dashed border-void-border p-12 text-center">
         <p className="text-void-muted text-sm">empty channel</p>
@@ -32,7 +34,7 @@ export default function ChannelBlockGrid({ connections: initial, channelId, isOw
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-      {connections.map((conn) => (
+      {visible.map((conn) => (
         <BlockCard
           key={conn.id}
           block={conn.block}
