@@ -44,3 +44,17 @@ export interface ConnectionData {
   block: BlockData
   user: UserSummary
 }
+
+export interface CommentData {
+  id: string
+  body: string
+  user: UserSummary
+  createdAt: string
+  updatedAt: string
+}
+
+export interface ReactionSummary {
+  emoji: string
+  count: number
+  userReacted: boolean
+}

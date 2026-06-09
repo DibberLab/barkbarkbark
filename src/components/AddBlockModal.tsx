@@ -17,6 +17,7 @@ export default function AddBlockModal({ channelId, onClose }: Props) {
 
   // TEXT
   const [textContent, setTextContent] = useState('')
+  const [textDesc, setTextDesc] = useState('')
 
   // LINK
   const [linkUrl, setLinkUrl] = useState('')
@@ -26,6 +27,7 @@ export default function AddBlockModal({ channelId, onClose }: Props) {
   // FILE/IMAGE/AUDIO
   const fileRef = useRef<HTMLInputElement>(null)
   const [fileTitle, setFileTitle] = useState('')
+  const [fileDesc, setFileDesc] = useState('')
   const [uploading, setUploading] = useState(false)
   const [uploadedFile, setUploadedFile] = useState<{
     fileUrl: string; fileName: string; fileMime: string; fileSize: number; type: string
@@ -71,13 +73,13 @@ export default function AddBlockModal({ channelId, onClose }: Props) {
 
     if (tab === 'text') {
       if (!textContent.trim()) { setError('Content required'); setLoading(false); return }
-      body = { type: 'TEXT', content: textContent }
+      body = { type: 'TEXT', content: textContent, description: textDesc || undefined }
     } else if (tab === 'link') {
       if (!linkUrl.trim()) { setError('URL required'); setLoading(false); return }
       body = { type: 'LINK', source: linkUrl, title: linkTitle, description: linkDesc }
     } else {
       if (!uploadedFile) { setError('Upload a file first'); setLoading(false); return }
-      body = { ...uploadedFile, type: uploadedFile.type, title: fileTitle }
+      body = { ...uploadedFile, type: uploadedFile.type, title: fileTitle, description: fileDesc || undefined }
     }
 
     try {
@@ -149,13 +151,19 @@ export default function AddBlockModal({ channelId, onClose }: Props) {
         <div className="p-4 flex flex-col gap-3">
           {tab === 'text' && (
             <>
-              <label className="label">content</label>
-              <textarea
-                className="input min-h-[120px] resize-y"
-                placeholder="write something..."
-                value={textContent}
-                onChange={(e) => setTextContent(e.target.value)}
-              />
+              <div>
+                <label className="label">content</label>
+                <textarea
+                  className="input min-h-[120px] resize-y"
+                  placeholder="write something..."
+                  value={textContent}
+                  onChange={(e) => setTextContent(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="label">description (optional)</label>
+                <input className="input" placeholder="add a description..." value={textDesc} onChange={(e) => setTextDesc(e.target.value)} />
+              </div>
             </>
           )}
 
@@ -181,6 +189,10 @@ export default function AddBlockModal({ channelId, onClose }: Props) {
               <div>
                 <label className="label">title (optional)</label>
                 <input className="input" placeholder="title" value={fileTitle} onChange={(e) => setFileTitle(e.target.value)} />
+              </div>
+              <div>
+                <label className="label">description (optional)</label>
+                <input className="input" placeholder="add a description..." value={fileDesc} onChange={(e) => setFileDesc(e.target.value)} />
               </div>
               <div>
                 <label className="label">file</label>

@@ -20,6 +20,8 @@ model User {
   channels    Channel[]
   blocks      Block[]
   connections Connection[]
+  comments    Comment[]
+  reactions   Reaction[]
 }
 
 model Channel {
@@ -56,6 +58,8 @@ model Block {
   updatedAt   DateTime  @updatedAt
 
   connections Connection[]
+  comments    Comment[]
+  reactions   Reaction[]
 
   @@index([userId])
 }
@@ -74,6 +78,34 @@ model Connection {
 
   @@unique([blockId, channelId])
   @@index([channelId])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  body      String
+  blockId   String
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  block Block @relation(fields: [blockId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([blockId])
+}
+
+model Reaction {
+  id        String   @id @default(cuid())
+  emoji     String
+  blockId   String
+  userId    String
+  createdAt DateTime @default(now())
+
+  block Block @relation(fields: [blockId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([blockId, userId, emoji])
+  @@index([blockId])
 }
 
 enum BlockType {

@@ -2,7 +2,7 @@ import { prisma } from '@/lib/db'
 import { getAuth } from '@/lib/auth'
 import { notFound } from 'next/navigation'
 import { formatDate } from '@/lib/utils'
-import BlockCard from '@/components/BlockCard'
+import ChannelBlockGrid from '@/components/ChannelBlockGrid'
 import ChannelControls from './ChannelControls'
 import type { ConnectionData } from '@/types'
 
@@ -84,24 +84,11 @@ export default async function ChannelPage({ params }: Props) {
       </div>
 
       {/* blocks */}
-      {connections.length === 0 ? (
-        <div className="border border-dashed border-void-border p-12 text-center">
-          <p className="text-void-muted text-sm">empty channel</p>
-          {canAdd && (
-            <p className="text-xs text-void-dim mt-2">add something above</p>
-          )}
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-          {connections.map((conn) => (
-            <BlockCard
-              key={conn.id}
-              block={conn.block as unknown as ConnectionData['block']}
-              canRemove={isOwner}
-            />
-          ))}
-        </div>
-      )}
+      <ChannelBlockGrid
+        connections={connections as unknown as ConnectionData[]}
+        channelId={channel.id}
+        isOwner={isOwner}
+      />
     </div>
   )
 }

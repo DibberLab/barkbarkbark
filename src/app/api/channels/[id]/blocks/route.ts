@@ -4,11 +4,11 @@ import { prisma } from '@/lib/db'
 import { z } from 'zod'
 
 const blockSchema = z.discriminatedUnion('type', [
-  z.object({ type: z.literal('TEXT'), content: z.string().min(1) }),
+  z.object({ type: z.literal('TEXT'), content: z.string().min(1), description: z.string().optional() }),
   z.object({ type: z.literal('LINK'), source: z.string().url(), title: z.string().optional(), description: z.string().optional() }),
-  z.object({ type: z.literal('IMAGE'), fileUrl: z.string(), fileName: z.string(), fileMime: z.string(), fileSize: z.number(), title: z.string().optional() }),
-  z.object({ type: z.literal('AUDIO'), fileUrl: z.string(), fileName: z.string(), fileMime: z.string(), fileSize: z.number(), title: z.string().optional() }),
-  z.object({ type: z.literal('FILE'), fileUrl: z.string(), fileName: z.string(), fileMime: z.string(), fileSize: z.number(), title: z.string().optional() }),
+  z.object({ type: z.literal('IMAGE'), fileUrl: z.string(), fileName: z.string(), fileMime: z.string(), fileSize: z.number(), title: z.string().optional(), description: z.string().optional() }),
+  z.object({ type: z.literal('AUDIO'), fileUrl: z.string(), fileName: z.string(), fileMime: z.string(), fileSize: z.number(), title: z.string().optional(), description: z.string().optional() }),
+  z.object({ type: z.literal('FILE'), fileUrl: z.string(), fileName: z.string(), fileMime: z.string(), fileSize: z.number(), title: z.string().optional(), description: z.string().optional() }),
 ])
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
