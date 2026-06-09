@@ -33,6 +33,10 @@ export default function AddBlockModal({ channelId, onClose }: Props) {
     fileUrl: string; fileName: string; fileMime: string; fileSize: number; type: string
   } | null>(null)
 
+  const resetFileInput = () => {
+    if (fileRef.current) fileRef.current.value = ''
+  }
+
   const handleUpload = async (file: File) => {
     setUploading(true)
     setError('')
@@ -48,12 +52,14 @@ export default function AddBlockModal({ channelId, onClose }: Props) {
         console.error('[upload] non-JSON response, status:', res.status)
         setError(`Upload failed (HTTP ${res.status})`)
         setUploading(false)
+        resetFileInput()
         return
       }
       if (!res.ok) {
         console.error('[upload] error response:', data)
         setError((data.error as string) || 'Upload failed')
         setUploading(false)
+        resetFileInput()
         return
       }
       console.log('[upload] success:', data)
@@ -63,6 +69,7 @@ export default function AddBlockModal({ channelId, onClose }: Props) {
       setError('Network error during upload')
     } finally {
       setUploading(false)
+      resetFileInput()
     }
   }
 
@@ -135,7 +142,7 @@ export default function AddBlockModal({ channelId, onClose }: Props) {
             <button
               key={t.id}
               type="button"
-              onClick={() => { setTab(t.id); setUploadedFile(null); setError('') }}
+              onClick={() => { setTab(t.id); setUploadedFile(null); setError(''); resetFileInput() }}
               className={`px-3 py-2 text-2xs tracking-widest transition-colors ${
                 tab === t.id
                   ? 'text-void-accent border-b border-void-accent'
