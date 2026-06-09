@@ -4,6 +4,12 @@ import { writeFile, mkdir } from 'fs/promises'
 import { join, extname } from 'path'
 import { randomBytes } from 'crypto'
 
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+}
+
 const UPLOAD_DIR = process.env.UPLOAD_DIR ?? join(process.cwd(), 'uploads')
 const MAX_SIZE = 100 * 1024 * 1024 // 100 MB
 
