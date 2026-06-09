@@ -43,7 +43,8 @@ export async function POST(req: NextRequest) {
   let formData: FormData
   try {
     formData = await req.formData()
-  } catch {
+  } catch (err) {
+    console.error('[upload] formData parse error:', err)
     return NextResponse.json({ error: 'Failed to parse form data' }, { status: 400 })
   }
 
