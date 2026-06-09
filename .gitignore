@@ -1,12 +1,5 @@
-*.sql
-*.wpress
-*.tar.gz
-*.zip
-*.log
-ib_logfile*
+.next/
 node_modules/
-data/db/aria_log_control
-data/db/aria_log.00000001
-data/db/aria_log_control
-data/db/aria_log.00000001
-data/cache/dump.rdb
+data/
+.env
+*.local

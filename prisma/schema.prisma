@@ -1,0 +1,91 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  username  String   @unique
+  email     String   @unique
+  password  String
+  bio       String?
+  avatar    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  channels    Channel[]
+  blocks      Block[]
+  connections Connection[]
+}
+
+model Channel {
+  id          String        @id @default(cuid())
+  title       String
+  slug        String
+  description String?
+  status      ChannelStatus @default(CLOSED)
+  userId      String
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  connections Connection[]
+
+  @@unique([userId, slug])
+  @@index([userId])
+}
+
+model Block {
+  id          String    @id @default(cuid())
+  type        BlockType
+  content     String?
+  title       String?
+  description String?
+  source      String?
+  fileUrl     String?
+  fileName    String?
+  fileMime    String?
+  fileSize    Int?
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  connections Connection[]
+
+  @@index([userId])
+}
+
+model Connection {
+  id        String   @id @default(cuid())
+  blockId   String
+  channelId String
+  userId    String
+  position  Int      @default(0)
+  createdAt DateTime @default(now())
+
+  block   Block   @relation(fields: [blockId], references: [id], onDelete: Cascade)
+  channel Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([blockId, channelId])
+  @@index([channelId])
+}
+
+enum BlockType {
+  TEXT
+  LINK
+  IMAGE
+  AUDIO
+  FILE
+}
+
+enum ChannelStatus {
+  PUBLIC
+  CLOSED
+  PRIVATE
+}
