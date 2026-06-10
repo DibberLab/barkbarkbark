@@ -2,6 +2,21 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getAuth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 
+export async function GET(
+  _req: NextRequest,
+  { params }: { params: { blockId: string } }
+) {
+  const block = await prisma.block.findUnique({
+    where: { id: params.blockId },
+    include: {
+      user: { select: { id: true, username: true, avatar: true } },
+      _count: { select: { connections: true } },
+    },
+  })
+  if (!block) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  return NextResponse.json(block)
+}
+
 export async function DELETE(
   _req: NextRequest,
   { params }: { params: { blockId: string } }

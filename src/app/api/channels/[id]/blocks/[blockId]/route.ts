@@ -19,5 +19,10 @@ export async function DELETE(
     where: { channelId: params.id, blockId: params.blockId },
   })
 
+  const remaining = await prisma.connection.count({ where: { blockId: params.blockId } })
+  if (remaining === 0) {
+    await prisma.block.delete({ where: { id: params.blockId } })
+  }
+
   return NextResponse.json({ ok: true })
 }

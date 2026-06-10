@@ -80,68 +80,53 @@ function AutoTextarea({ value, onChange, onBlur, placeholder, className }: {
   )
 }
 
-function ActionsMenu({ block }: { block: BlockData }) {
-  const [open, setOpen] = useState(false)
+function ActionsSection({ block, isOwner, onClose }: { block: BlockData; isOwner: boolean; onClose: () => void }) {
   const [copied, setCopied] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
+  const [shared, setShared] = useState(false)
 
-  useEffect(() => {
-    if (!open) return
-    function handler(e: MouseEvent) {
-      if (!ref.current?.contains(e.target as Node)) setOpen(false)
+  async function share() {
+    const url = `${window.location.origin}/blocks/${block.id}`
+    if (navigator.share) {
+      await navigator.share({ url, title: block.title ?? undefined })
+    } else {
+      await navigator.clipboard.writeText(url)
+      setShared(true)
+      setTimeout(() => setShared(false), 1200)
     }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [open])
+  }
 
   async function copyLink() {
-    let url = window.location.href
+    let url = `${window.location.origin}/blocks/${block.id}`
     if (block.type === 'LINK' && block.source) url = block.source
     else if (block.fileUrl) url = `${window.location.origin}${block.fileUrl}`
     await navigator.clipboard.writeText(url)
     setCopied(true)
-    setTimeout(() => { setCopied(false); setOpen(false) }, 1200)
+    setTimeout(() => setCopied(false), 1200)
   }
 
+  async function deleteBlock() {
+    if (!confirm('Delete this block? This cannot be undone.')) return
+    await fetch(`/api/blocks/${block.id}`, { method: 'DELETE' })
+    onClose()
+  }
+
+  const actionCls = 'text-left text-xs text-void-muted hover:text-void-text transition-colors py-0.5'
+
   return (
-    <div ref={ref} className="relative flex-shrink-0 ml-auto">
-      <button
-        onClick={() => setOpen((o) => !o)}
-        className="text-void-dim hover:text-void-muted transition-colors px-1 text-base leading-none"
-        title="actions"
-      >
-        ···
-      </button>
-      {open && (
-        <div className="absolute right-0 top-full mt-1 bg-void-surface border border-void-border z-20 min-w-[148px] py-1">
-          <button
-            onClick={copyLink}
-            className="block w-full text-left px-3 py-1.5 text-xs text-void-muted hover:text-void-text hover:bg-void-raised transition-colors"
-          >
-            {copied ? '✓ copied' : block.type === 'LINK' ? 'copy url' : 'copy link'}
-          </button>
-          {block.type === 'LINK' && block.source && (
-            <a
-              href={block.source}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => setOpen(false)}
-              className="block px-3 py-1.5 text-xs text-void-muted hover:text-void-text hover:bg-void-raised transition-colors"
-            >
-              open url ↗
-            </a>
-          )}
-          {(block.type === 'IMAGE' || block.type === 'AUDIO' || block.type === 'FILE') && block.fileUrl && (
-            <a
-              href={block.fileUrl}
-              download={block.fileName ?? true}
-              onClick={() => setOpen(false)}
-              className="block px-3 py-1.5 text-xs text-void-muted hover:text-void-text hover:bg-void-raised transition-colors"
-            >
-              download
-            </a>
-          )}
-        </div>
+    <div className="px-4 py-3 border-b border-void-border flex flex-col gap-0.5">
+      <p className="text-2xs uppercase tracking-widest text-void-dim mb-1.5">actions</p>
+      <button onClick={share} className={actionCls}>{shared ? '✓ link copied' : 'share block'}</button>
+      <button onClick={copyLink} className={actionCls}>{copied ? '✓ copied' : block.type === 'LINK' ? 'copy url' : 'copy link'}</button>
+      {block.type === 'LINK' && block.source && (
+        <a href={block.source} target="_blank" rel="noopener noreferrer" className={actionCls}>open url ↗</a>
+      )}
+      {(block.type === 'IMAGE' || block.type === 'AUDIO' || block.type === 'FILE') && block.fileUrl && (
+        <a href={block.fileUrl} download={block.fileName ?? true} className={actionCls}>download</a>
+      )}
+      {isOwner && (
+        <button onClick={deleteBlock} className="text-left text-xs text-red-700 hover:text-red-500 transition-colors py-0.5 mt-1">
+          delete block
+        </button>
       )}
     </div>
   )
@@ -335,7 +320,6 @@ export default function BlockDetailModal({ block, onClose, onUpdate }: Props) {
             ) : (
               block.title && <span className="text-sm text-void-text truncate">{block.title}</span>
             )}
-            <ActionsMenu block={block} />
           </div>
 
           {/* main content */}
@@ -439,6 +423,9 @@ export default function BlockDetailModal({ block, onClose, onUpdate }: Props) {
               </span>
             )}
           </div>
+
+          {/* actions */}
+          <ActionsSection block={block} isOwner={isOwner} onClose={onClose} />
 
           {/* connect */}
           {session && <ConnectSection blockId={block.id} />}
