@@ -1,6 +1,7 @@
 'use client'
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import RichTextEditor from './RichTextEditor'
 
 type Tab = 'text' | 'link' | 'image' | 'audio' | 'file'
 
@@ -16,6 +17,7 @@ export default function AddBlockModal({ channelId, onClose }: Props) {
   const [error, setError] = useState('')
 
   // TEXT
+  const [textTitle, setTextTitle] = useState('')
   const [textContent, setTextContent] = useState('')
   const [textDesc, setTextDesc] = useState('')
 
@@ -80,7 +82,7 @@ export default function AddBlockModal({ channelId, onClose }: Props) {
 
     if (tab === 'text') {
       if (!textContent.trim()) { setError('Content required'); setLoading(false); return }
-      body = { type: 'TEXT', content: textContent, description: textDesc || undefined }
+      body = { type: 'TEXT', title: textTitle || undefined, content: textContent, description: textDesc || undefined }
     } else if (tab === 'link') {
       if (!linkUrl.trim()) { setError('URL required'); setLoading(false); return }
       body = { type: 'LINK', source: linkUrl, title: linkTitle, description: linkDesc }
@@ -159,13 +161,19 @@ export default function AddBlockModal({ channelId, onClose }: Props) {
           {tab === 'text' && (
             <>
               <div>
+                <label className="label">title (optional)</label>
+                <input className="input" placeholder="title" value={textTitle} onChange={(e) => setTextTitle(e.target.value)} />
+              </div>
+              <div>
                 <label className="label">content</label>
-                <textarea
-                  className="input min-h-[120px] resize-y"
-                  placeholder="write something..."
-                  value={textContent}
-                  onChange={(e) => setTextContent(e.target.value)}
-                />
+                <div className="input py-2">
+                  <RichTextEditor
+                    content={textContent}
+                    onChange={setTextContent}
+                    placeholder="write something..."
+                    autoFocus={false}
+                  />
+                </div>
               </div>
               <div>
                 <label className="label">description (optional)</label>

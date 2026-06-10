@@ -6,12 +6,12 @@
 
 @layer base {
   :root {
-    --bg: #0c0c0c;
-    --surface: #141414;
-    --raised: #1a1a1a;
-    --border: #242424;
-    --text: #d4d4d4;
-    --muted: #525252;
+    --bg: #0a0c10;
+    --surface: #111318;
+    --raised: #181c22;
+    --border: #232830;
+    --text: #d8dde8;
+    --muted: #8890a0;
     --accent: #c8ff40;
   }
 
@@ -87,4 +87,46 @@
   .type-badge {
     @apply text-2xs uppercase tracking-widest font-mono;
   }
+
+  /* Rich text editor content */
+  .rte-content {
+    @apply text-sm text-void-text leading-relaxed min-h-[80px];
+  }
+  .rte-content p { @apply my-1; }
+  .rte-content p.is-editor-empty:first-child::before {
+    @apply text-void-dim pointer-events-none;
+    content: attr(data-placeholder);
+    float: left;
+    height: 0;
+  }
+  .rte-content h1 { @apply text-lg font-semibold text-void-text mt-3 mb-1; }
+  .rte-content h2 { @apply text-base font-semibold text-void-text mt-2 mb-1; }
+  .rte-content strong { @apply font-semibold text-void-text; }
+  .rte-content em { @apply italic; }
+  .rte-content s { @apply line-through text-void-muted; }
+  .rte-content a.rte-link { @apply text-blue-400 underline cursor-pointer; }
+  .rte-content ul { @apply list-disc pl-4 my-1 space-y-0.5; }
+  .rte-content ol { @apply list-decimal pl-4 my-1 space-y-0.5; }
+  .rte-content li { @apply text-void-text; }
+  .rte-content blockquote { @apply border-l-2 border-void-border pl-3 text-void-muted italic my-2; }
+  .rte-content code { @apply bg-void-raised px-1 text-void-accent font-mono text-xs; }
+  .rte-content pre { @apply bg-void-raised p-3 my-2 overflow-x-auto; }
+  .rte-content pre code { @apply bg-transparent px-0; }
+
+  /* Same styles for rendered (read-only) rich text */
+  .rte-view { @apply text-sm text-void-text leading-relaxed; }
+  .rte-view p { @apply my-1; }
+  .rte-view h1 { @apply text-lg font-semibold text-void-text mt-3 mb-1; }
+  .rte-view h2 { @apply text-base font-semibold text-void-text mt-2 mb-1; }
+  .rte-view strong { @apply font-semibold text-void-text; }
+  .rte-view em { @apply italic; }
+  .rte-view s { @apply line-through text-void-muted; }
+  .rte-view a { @apply text-blue-400 underline; }
+  .rte-view ul { @apply list-disc pl-4 my-1 space-y-0.5; }
+  .rte-view ol { @apply list-decimal pl-4 my-1 space-y-0.5; }
+  .rte-view li { @apply text-void-text; }
+  .rte-view blockquote { @apply border-l-2 border-void-border pl-3 text-void-muted italic my-2; }
+  .rte-view code { @apply bg-void-raised px-1 text-void-accent font-mono text-xs; }
+  .rte-view pre { @apply bg-void-raised p-3 my-2 overflow-x-auto; }
+  .rte-view pre code { @apply bg-transparent px-0; }
 }

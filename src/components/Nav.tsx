@@ -11,7 +11,7 @@ export default function Nav() {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 h-10 border-b border-void-border bg-void-bg">
       <Link href="/" className="text-void-accent font-mono text-sm font-semibold tracking-tight hover:opacity-80 transition-opacity">
-        VOID
+        barkbarkbark
       </Link>
 
       <div className="flex items-center gap-4 text-xs text-void-muted">

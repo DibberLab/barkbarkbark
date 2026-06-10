@@ -88,6 +88,7 @@ export default async function ChannelPage({ params }: Props) {
         connections={connections as unknown as ConnectionData[]}
         channelId={channel.id}
         isOwner={isOwner}
+        canAdd={canAdd}
       />
     </div>
   )

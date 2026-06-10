@@ -6,13 +6,13 @@ const config: Config = {
     extend: {
       colors: {
         void: {
-          bg: '#0c0c0c',
-          surface: '#141414',
-          raised: '#1a1a1a',
-          border: '#242424',
-          text: '#d4d4d4',
-          muted: '#525252',
-          dim: '#333333',
+          bg: '#0a0c10',
+          surface: '#111318',
+          raised: '#181c22',
+          border: '#232830',
+          text: '#d8dde8',
+          muted: '#8890a0',
+          dim: '#565e6e',
           accent: '#c8ff40',
           'accent-dim': '#8fb82d',
         },

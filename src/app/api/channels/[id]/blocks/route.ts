@@ -35,6 +35,31 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   return NextResponse.json(connections)
 }
 
+export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+  const session = await getAuth()
+  if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const userId = (session.user as { id: string }).id
+  const channel = await prisma.channel.findUnique({ where: { id: params.id } })
+  if (!channel || channel.userId !== userId) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
+
+  const { order } = await req.json() as { order: string[] }
+  if (!Array.isArray(order)) return NextResponse.json({ error: 'Invalid' }, { status: 400 })
+
+  await prisma.$transaction(
+    order.map((blockId, i) =>
+      prisma.connection.updateMany({
+        where: { channelId: params.id, blockId },
+        data: { position: i },
+      })
+    )
+  )
+
+  return NextResponse.json({ ok: true })
+}
+
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
   const session = await getAuth()
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -71,7 +96,12 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
         position: (maxPos._max.position ?? -1) + 1,
       },
       include: {
-        block: { include: { user: { select: { id: true, username: true, avatar: true } } } },
+        block: {
+          include: {
+            user: { select: { id: true, username: true, avatar: true } },
+            _count: { select: { connections: true } },
+          },
+        },
         user: { select: { id: true, username: true, avatar: true } },
       },
     })
@@ -96,7 +126,12 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
         position: (maxPos._max.position ?? -1) + 1,
       },
       include: {
-        block: { include: { user: { select: { id: true, username: true, avatar: true } } } },
+        block: {
+          include: {
+            user: { select: { id: true, username: true, avatar: true } },
+            _count: { select: { connections: true } },
+          },
+        },
         user: { select: { id: true, username: true, avatar: true } },
       },
     })

@@ -1,12 +1,14 @@
 import { prisma } from '@/lib/db'
+import { getAuth } from '@/lib/auth'
 import ChannelCard from '@/components/ChannelCard'
-import BlockCard from '@/components/BlockCard'
+import ExploreBlockGrid from '@/components/ExploreBlockGrid'
 import type { ChannelData, BlockData } from '@/types'
 
 export const dynamic = 'force-dynamic'
 
 export default async function Explore() {
-  const [channels, blocks] = await Promise.all([
+  const [session, channels, blocks] = await Promise.all([
+    getAuth(),
     prisma.channel.findMany({
       where: { status: { in: ['PUBLIC', 'CLOSED'] } },
       include: {
@@ -26,6 +28,8 @@ export default async function Explore() {
     }),
   ])
 
+  const currentUserId = (session?.user as { id?: string })?.id ?? null
+
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 flex flex-col gap-10">
       <section>
@@ -43,15 +47,10 @@ export default async function Explore() {
 
       <section>
         <h2 className="text-xs uppercase tracking-widest text-void-muted mb-4">recent blocks</h2>
-        {blocks.length === 0 ? (
-          <p className="text-void-muted text-sm">nothing yet</p>
-        ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-            {blocks.map((b) => (
-              <BlockCard key={b.id} block={b as unknown as BlockData} />
-            ))}
-          </div>
-        )}
+        <ExploreBlockGrid
+          blocks={blocks as unknown as BlockData[]}
+          currentUserId={currentUserId}
+        />
       </section>
     </div>
   )

@@ -4,8 +4,17 @@ import Nav from '@/components/Nav'
 import SessionProvider from '@/components/SessionProvider'
 
 export const metadata: Metadata = {
-  title: 'VOID',
+  title: 'barkbarkbark',
   description: 'channels for the obscure',
+  icons: {
+    icon: [
+      { url: '/favicon.ico' },
+      { url: '/favicon-32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon-16.png', sizes: '16x16', type: 'image/png' },
+    ],
+    apple: '/apple-touch-icon.png',
+  },
+  manifest: '/site.webmanifest',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
