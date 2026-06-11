@@ -220,6 +220,7 @@ export default function BlockDetailModal({ block, onClose, onUpdate }: Props) {
   const [commentKey, setCommentKey] = useState(0)
   const [submitting, setSubmitting] = useState(false)
   const [reacting, setReacting] = useState(false)
+  const [sheetOpen, setSheetOpen] = useState(false)
 
   useEffect(() => {
     fetchComments()
@@ -305,7 +306,7 @@ export default function BlockDetailModal({ block, onClose, onUpdate }: Props) {
         </button>
 
         {/* left — content */}
-        <div className="flex-1 flex flex-col min-h-0 overflow-y-auto border-b md:border-b-0 md:border-r border-void-border">
+        <div className="flex-1 flex flex-col min-h-0 overflow-y-auto border-b md:border-b-0 md:border-r border-void-border pb-11 md:pb-0">
           {/* type badge + title + actions */}
           <div className={`px-5 pt-4 pb-2 border-b border-void-border flex items-center gap-2 ${TYPE_COLORS[block.type]}`}>
             <span className="type-badge flex-shrink-0">{block.type}</span>
@@ -406,8 +407,40 @@ export default function BlockDetailModal({ block, onClose, onUpdate }: Props) {
           </div>
         </div>
 
-        {/* right — sidebar */}
-        <div className="w-full md:w-72 flex-shrink-0 flex flex-col overflow-y-auto">
+        {/* Mobile sheet backdrop */}
+        {sheetOpen && (
+          <div
+            className="md:hidden absolute inset-0 z-[9] bg-black/40"
+            onClick={() => setSheetOpen(false)}
+          />
+        )}
+
+        {/* right — sidebar (desktop) / bottom sheet (mobile) */}
+        <div
+          className={[
+            'absolute inset-x-0 bottom-0 z-10 h-[70vh] flex flex-col bg-void-surface overflow-y-auto',
+            'transition-transform duration-300 ease-out',
+            sheetOpen ? 'translate-y-0' : 'translate-y-[calc(100%_-_2.75rem)]',
+            'md:static md:translate-y-0 md:h-auto md:w-72 md:flex-shrink-0 md:transition-none',
+          ].join(' ')}
+        >
+          {/* Mobile handle — hidden on desktop */}
+          <button
+            className="md:hidden h-11 flex-shrink-0 flex items-center justify-between px-4 border-t border-void-border"
+            onClick={() => setSheetOpen(o => !o)}
+          >
+            <span className="text-xs text-void-muted">
+              {comments.length > 0
+                ? `${comments.length} comment${comments.length !== 1 ? 's' : ''}`
+                : 'info & comments'}
+            </span>
+            <svg
+              className={`w-4 h-4 text-void-muted transition-transform duration-300 ${sheetOpen ? 'rotate-180' : ''}`}
+              fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
+            </svg>
+          </button>
           {/* meta */}
           <div className="px-4 py-3 border-b border-void-border flex flex-col gap-1">
             <div className="flex items-center gap-1 text-xs text-void-muted">
